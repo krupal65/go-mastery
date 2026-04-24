@@ -180,7 +180,7 @@ html = r"""<!doctype html>
   .nav{overflow-y:auto;padding:8px 10px 24px;flex:1}
   .nav .group{color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.16em;padding:14px 12px 8px;font-weight:600}
   .nav a.item{
-    display:grid;grid-template-columns:28px 1fr;align-items:center;gap:10px;
+    display:grid;grid-template-columns:54px 1fr;align-items:center;gap:10px;
     padding:9px 12px;border-radius:8px;color:var(--text-2);cursor:pointer;
     user-select:none;border:1px solid transparent;margin-bottom:1px;
     position:relative;transition:all .15s;
@@ -195,10 +195,10 @@ html = r"""<!doctype html>
     border-radius:0 2px 2px 0;background:linear-gradient(180deg,var(--accent),var(--accent-2));
   }
   .nav a.item .num{
-    width:28px;height:28px;border-radius:7px;
+    width:54px;height:26px;border-radius:7px;
     background:var(--panel-hi);color:var(--text-2);
     display:flex;align-items:center;justify-content:center;
-    font-size:12px;font-weight:700;font-family:"JetBrains Mono",monospace;
+    font-size:11.5px;font-weight:700;font-family:"JetBrains Mono",monospace;letter-spacing:.02em;
     transition:all .15s;border:1px solid var(--border);
   }
   .nav a.item.active .num{
@@ -490,9 +490,24 @@ html = r"""<!doctype html>
       .trim().replace(/\s+/g,'-');
   }
 
+  // Strip "Day X"/"(Days X-Y)" phrases from rendered content
+  function stripDayMentions(md){
+    return md
+      // "(Days 1–7)", "(Days 8-14)"  — parenthesised
+      .replace(/\s*\(Days?\s*\d+\s*[–\-]\s*\d+\)/gi, '')
+      // "(Day 5)"
+      .replace(/\s*\(Day\s*\d+\)/gi, '')
+      // "Days 1–7" / "Days 8-14" (no parens)
+      .replace(/\bDays?\s*\d+\s*[–\-]\s*\d+\b/gi, '')
+      // trailing "— Phase N Study Notes"  dash remnants
+      .replace(/\s+[—–-]\s+Phase\s*\d+\s*Study Notes/gi, ' — Study Notes')
+      // clean up double spaces left behind
+      .replace(/[ \t]{2,}/g, ' ');
+  }
+
   // Decode all markdown upfront
   PAGES.forEach(p => {
-    p.md = b64decode(p.content_b64);
+    p.md = stripDayMentions(b64decode(p.content_b64));
     // Build topic index from markdown headings
     const lines = p.md.split('\n');
     const topics = [];
@@ -530,7 +545,7 @@ html = r"""<!doctype html>
     a.className = 'item';
     a.dataset.id = p.id;
     a.href = '#' + p.id;
-    a.innerHTML = `<div class="num">${String(idx+1).padStart(2,'0')}</div><div class="meta"><div class="t">${p.title}</div></div>`;
+    a.innerHTML = `<div class="num">Day ${idx+1}</div><div class="meta"><div class="t">${p.title}</div></div>`;
     navItems.appendChild(a);
   });
 
@@ -596,7 +611,7 @@ html = r"""<!doctype html>
       el.classList.toggle('active', el.dataset.id === p.id);
     });
 
-    kickerEl.textContent = 'Topic ' + String(idx+1).padStart(2,'0');
+    kickerEl.textContent = 'Day ' + (idx+1);
     titleEl.textContent = p.title;
     subtitleEl.textContent = 'Study notes';
     crumbEl.textContent = p.title;
