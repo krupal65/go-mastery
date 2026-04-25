@@ -1,3 +1,4 @@
+**Go study site** https://69eb65dbe6fd18d2ac4921aa--legendary-manatee-6dfb76.netlify.app/
 # 🐹 Go Language — Phase 1 Study Notes (Days 1–7)
 
 > Complete notes for **Topic 3: Short Variable Declaration & Type Inference**, **Topic 4: Go Language Basics Part 2**, **Topic 5: Control Structures (if, switch, loops)**
